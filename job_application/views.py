@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from .forms import ApplicationForm
-from .models import Form# class that creates the database in the 'model.py' folder
+from .models import Form # importing the class that creates the database in the 'model.py' folder
 from django.contrib import messages # messages is a django method that allows you to display messages on the webpage
+from django.core.mail import EmailMessage # 'EmailMessage' is a class we are importing
 
 def index(request):
     if request.method == "POST":
@@ -16,5 +17,15 @@ def index(request):
             Form.objects.create(first_name=first_name, last_name=last_name,
                                 email=email, date=date, occupation=occupation)
             
+            message_body = f"""
+                Thank you for your submission, {first_name}.
+                Here are your data:
+                Name: {first_name} {last_name}
+                Occupation: {occupation}
+                Thank you.
+                """
+            email_message = EmailMessage("Form submission confirmation", message_body, to=[email])
+            email_message.send()
+
             messages.success(request, "Form submitted successfully!")
     return render(request, "index.html")
